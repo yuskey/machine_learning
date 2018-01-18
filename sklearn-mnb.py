@@ -3,8 +3,7 @@ import pandas as pd
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import cross_val_score
-import unicodedata
-
+from sklearn.pipeline import Pipeline
 """Training Dataset is Youtube04-Eminem, which is spam dataset with 4 different features and 1 class
 Features: COMMENT_ID, AUTHOR, DATE, CONTENT
 Class: CLASS (0 or 1)
@@ -28,6 +27,18 @@ class model(object):
         self.clf = MultinomialNB()
         self.count_vect = CountVectorizer()
         self.tfidf_transformer = TfidfTransformer()
+        self.pipe = Pipeline([('vect', CountVectorizer()),
+                              ('clf', MultinomialNB()),])
+
+
+    def train_pipe(self, train_dataset):
+        self.pipe.fit(train_dataset.x, train_dataset.y)
+
+    def test_pipe(self, test_dataset):
+        predicted = self.pipe.predict(test_dataset.x)
+        accuracy = np.mean(predicted == test_dataset.y)
+        print(accuracy)
+
 
     def train_mnb(self, train_dataset):
         self.x = self.vectorize(train_dataset.x)
@@ -76,6 +87,8 @@ def main():
     classifier.cross_validation()
     classifier.test_on_dataset(testing)
     classifier.predict(['Eminem is bad', 'Check out my website'])
+    classifier.train_pipe(training)
+    classifier.test_pipe(testing)
 
 
 if __name__ == "__main__":

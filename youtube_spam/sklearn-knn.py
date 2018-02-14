@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import cross_val_score, cross_val_predict, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn import metrics
+from sklearn.externals import joblib
 
 class dataset(object):
     def __init__(self, file_name):
@@ -35,6 +36,7 @@ class model():
         print("Best Score is: "  + str(gs_clf.best_score_))
         for param_name in sorted(self.params.keys()):
             print("%s:%r"%(param_name, gs_clf.best_params_[param_name]))
+        self.save_model(gs_clf, 'knn_model.pkl')
         self.pipe.set_params(**gs_clf.best_params_)
 
     def train_pipe(self,train_dataset):
@@ -49,6 +51,7 @@ class model():
         fpr,tpr,thresholds = metrics.roc_curve(test_dataset.y, predicted)
         print("AUC is: " + str(metrics.auc(fpr,tpr)) + "\n")
 
+
     def cross_validation(self, train_dataset):
         predicted = cross_val_predict(self.pipe, train_dataset.x, train_dataset.y, cv=10)
         #score = cross_val_score(self.pipe, train_dataset.x, train_dataset.y, cv=10)
@@ -59,14 +62,21 @@ class model():
         fpr,tpr,thresholds=metrics.roc_curve(train_dataset.y, predicted)
         print("AUC is: " + str(metrics.auc(fpr,tpr)) + "\n")
 
+    def save_model(self, gs_clf, file_name):
+        joblib.dump(gs_clf.best_estimator_, file_name)
+
+    def load_model_params(self, file_name):
+        self.pipe.set_params(**joblib.load(file_name).best_params_)
+
+
 def main():
     training = dataset("Youtube04-Eminem.csv")
     testing = dataset("Youtube05-Shakira.csv")
     classifier = model()
     classifier.grid_search(training)
+    classifier.load_model_params('knn_model.pkl')
     classifier.cross_validation(training)
     classifier.train_pipe(training)
     classifier.test_pipe(testing)
-
 if __name__ == "__main__":
     main()

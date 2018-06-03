@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import cross_val_score,cross_val_predict,GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn import metrics
+from sklearn.externals import joblib
 
 #keras imports
 from keras.models import Sequential

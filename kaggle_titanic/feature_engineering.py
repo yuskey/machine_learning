@@ -2,8 +2,9 @@
 import pandas as pd
 import random
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import LinearSVC, SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
@@ -20,9 +21,6 @@ print(train['Survived'].value_counts())
 #create copies to not alter the originals
 train_c = train.copy()
 test_c = test.copy()
-
-#combine test and training to make feature changes to both datasets
-#concat = train.append(test, ignore_index=True)
 
 #extract text from the training and testing datasets, will be used later
 text_train = train_c['Name'].values
@@ -58,10 +56,10 @@ X_test = np.hstack([text_b_test.toarray(), test_c])
 X_test_col = vectorizer.get_feature_names()+list(test_c)
 
 #create a logistic regression model and check performance using 5-fold cross-validation
-clf = LogisticRegression(C=5.0)
+clf = LogisticRegression(C=5)
 clf.fit(X_train, y_train)
 scores = cross_val_score(clf, X_train, y_train, cv=5)
-print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean()*100, (scores.std() * 2*100)))
+print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean()*100, (scores.std() *100)))
 
 #predict and add predictions back to the test copy, then output the results to file
 predicted = clf.predict(X_test)

@@ -44,10 +44,8 @@ test_c = test_c.fillna(0)
 train_c = pd.get_dummies(train_c, columns=['Sex','Embarked', 'Pclass','Parch'])
 test_c = pd.get_dummies(test_c, columns=['Sex','Embarked', 'Pclass','Parch'])
 
-#add the bag of words representation of the text features in the following lines of code
-vectorizer = CountVectorizer(ngram_range=(1, 1))
-
 #fit and transform the vocabulary for the training text, then transform the test text based on this vocabulary
+vectorizer = CountVectorizer(ngram_range=(1, 1))
 text_b_train = vectorizer.fit_transform(text_train)
 text_b_test = vectorizer.transform(text_test)
 

@@ -5,6 +5,8 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
 from sklearn.svm import LinearSVC, SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
@@ -56,12 +58,12 @@ X_test = np.hstack([text_b_test.toarray(), test_c])
 X_test_col = vectorizer.get_feature_names()+list(test_c)
 
 #create a logistic regression model and check performance using 5-fold cross-validation
-clf = LogisticRegression(C=5)
-clf.fit(X_train, y_train)
-scores = cross_val_score(clf, X_train, y_train, cv=5)
+clf = RandomForestClassifier(n_estimators=230)
+clf.fit(train_c, y_train)
+scores = cross_val_score(clf, train_c, y_train, cv=5)
 print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean()*100, (scores.std() *100)))
 
 #predict and add predictions back to the test copy, then output the results to file
-predicted = clf.predict(X_test)
+predicted = clf.predict(test_c)
 test_c['Survived'] = predicted
-test_c.to_csv('titanic_predictions_LR.csv', sep=',', columns=['PassengerId', 'Survived'], index=False)
+#test_c.to_csv('titanic_predictions_KNN.csv', sep=',', columns=['PassengerId', 'Survived'], index=False)

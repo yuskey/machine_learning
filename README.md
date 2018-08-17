@@ -11,4 +11,5 @@ Kaggle Competitions participated in:
   
   
 LinkedIn: https://www.linkedin.com/in/brian-heredia-phd-7519a746/
+
 Kaggle: https://www.kaggle.com/brianheredia

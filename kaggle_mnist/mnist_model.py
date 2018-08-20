@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import random
+import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
@@ -8,12 +8,9 @@ import warnings
 
 """
     To Do:
-        1. Try different parameters, could use gridCV but 
-           not many parameters to try so will just stick with manual tuning (done) 
-           Best model:
-                accuracy = .9677
-                layers = input, 512,256,128,64,32, output
-                alpha = 0.0001
+        Best model:
+            accuracy = .9677
+            layers = input, 512,256,128,64,32, output
 
         2. Try a convolutional neural network (needs to be done on desktop, no CNTK for mac)
             2.1. Need to convert data into a 28x28x1 format for ConvNet 
@@ -40,8 +37,7 @@ def load_data(training_file, testing_file):
 #Model
 def MLP_model(n_neurons):
     #random_state is set for reproducibility, sets all weights to the same starting point
-    return  MLPClassifier(hidden_layer_sizes=(n_neurons), verbose=True, random_state=1, alpha=.0001)
-
+    return  MLPClassifier(hidden_layer_sizes=(n_neurons), verbose=True, random_state=1)
 
 #predict and get file
 def predict(clf, test_data, accuracy):
@@ -49,12 +45,20 @@ def predict(clf, test_data, accuracy):
         test_data = test_data.reset_index()
         test_data['index'] += 1
         test_data['Label'] = predicted_labels
-        test_data.to_csv('mnist_predictions_mlp_{0:.{1}f}.csv'.format(accuracy, 4), sep=',', columns=['index', 'Label'], index=False)
+        #test_data.to_csv('mnist_predictions_mlp_{0:.{1}f}.csv'.format(accuracy, 4), sep=',', columns=['index', 'Label'], index=False)
 
     predicted_labels = clf.predict(test_data)
     create_submission_csv(predicted_labels, test_data)
 
-
+#visualizes the first layer weights to see how the NN views the numbers
+def visualize_weights(mlp):
+    _, axes = plt.subplots(4, 4)
+    vmin, vmax = mlp.coefs_[0].min(), mlp.coefs_[0].max()
+    for coef, ax in zip(mlp.coefs_[0].T, axes.ravel()):
+        ax.matshow(coef.reshape(28,28), cmap = plt.get_cmap('seismic'), vmin = vmin * .5, vmax = vmax * .5)
+        ax.set_xticks(())
+        ax.set_yticks(())
+    plt.show()
 
 #driver
 def main():
@@ -68,10 +72,11 @@ def main():
     #test model using cross-validation, 5-fold should be enough
     scores = cross_val_score(mlp, datasets[0], y_train, cv=5)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean()*100, (scores.std() *100)))
-    
+
     #predict test instances and create submission file
     predict(mlp, datasets[1], scores.mean())
-
+    visualize_weights(mlp)
+    
 
 if __name__ == '__main__':
     main()

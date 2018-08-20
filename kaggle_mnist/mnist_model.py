@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
@@ -45,7 +47,7 @@ def predict(clf, test_data, accuracy):
         test_data = test_data.reset_index()
         test_data['index'] += 1
         test_data['Label'] = predicted_labels
-        #test_data.to_csv('mnist_predictions_mlp_{0:.{1}f}.csv'.format(accuracy, 4), sep=',', columns=['index', 'Label'], index=False)
+        test_data.to_csv('mnist_predictions_mlp_{0:.{1}f}.csv'.format(accuracy, 4), sep=',', columns=['index', 'Label'], index=False)
 
     predicted_labels = clf.predict(test_data)
     create_submission_csv(predicted_labels, test_data)
@@ -66,8 +68,10 @@ def main():
 
     #hidden layers should be between input and output layer sizes (785 to 10) and 
     #should only ever decrease or stay the same so you don't lose information
-    mlp = MLP_model((512,256,128,64,32))
-    mlp.fit(datasets[0], y_train)
+    mlp = MLP_model((398))
+    pipeline = Pipeline([('scaler', MinMaxScaler(feature_range=(0.0 ,1.0))),
+                         ('model', mlp)])
+    pipeline.fit(datasets[0], y_train)
     
     #test model using cross-validation, 5-fold should be enough
     scores = cross_val_score(mlp, datasets[0], y_train, cv=5)

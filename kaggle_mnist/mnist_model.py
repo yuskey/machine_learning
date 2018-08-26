@@ -2,11 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.neural_network import MLPClassifier
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import cross_val_score
-import warnings
 
 """
     To Do:
@@ -68,18 +65,17 @@ def main():
 
     #hidden layers should be between input and output layer sizes (785 to 10) and 
     #should only ever decrease or stay the same so you don't lose information
-    mlp = MLP_model((398))
-    pipeline = Pipeline([('scaler', MinMaxScaler(feature_range=(0.0 ,1.0))),
-                         ('model', mlp)])
+    mlp = MLP_model((512,256,128,64,32))
+    pipeline = Pipeline([('model', mlp)])
     pipeline.fit(datasets[0], y_train)
     
     #test model using cross-validation, 5-fold should be enough
-    scores = cross_val_score(mlp, datasets[0], y_train, cv=5)
+    scores = cross_val_score(pipeline, datasets[0], y_train, cv=5)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean()*100, (scores.std() *100)))
 
     #predict test instances and create submission file
-    predict(mlp, datasets[1], scores.mean())
-    visualize_weights(mlp)
+    predict(pipeline, datasets[1], scores.mean())
+    #visualize_weights(pipeline.named_steps['model'])
     
 
 if __name__ == '__main__':
